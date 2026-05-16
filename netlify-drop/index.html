@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tri & Seconde Vie — L'Oasis du Réemploi</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#080d09;font-family:'Nunito',sans-serif;color:#E8F5E9;display:flex;justify-content:center;align-items:center;min-height:100vh;overflow-x:hidden}
+#game{width:100%;max-width:860px;min-height:640px;background:linear-gradient(180deg,#0F1A12,#1A2B1F 50%,#0D1710);border-radius:20px;position:relative;overflow:hidden;box-shadow:0 0 80px rgba(16,185,129,0.1)}
+
+/* LANG */
+.lang-bar{position:absolute;top:10px;right:14px;z-index:300;display:flex;gap:6px}
+.lang-btn{background:rgba(15,26,18,0.95);border:1px solid rgba(255,255,255,0.15);color:#C8E6C9;padding:4px 10px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;position:relative;z-index:301}
+.lang-btn:hover{background:rgba(255,255,255,0.15)}
+.lang-btn.active{background:#10B981;color:#fff;border-color:#10B981}
+
+/* SCREENS */
+.scr{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:640px;padding:28px 20px;text-align:center;gap:14px}
+.brand-line{font-size:11px;color:#81C784;letter-spacing:3px;text-transform:uppercase;opacity:.8}
+.brand-name{font-size:13px;color:#4ADE80;font-weight:800;letter-spacing:1px}
+.big-emoji{font-size:56px}
+.title{font-size:28px;font-weight:900;letter-spacing:2px;background:linear-gradient(135deg,#4ADE80,#22D3EE);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.subtitle{font-size:12px;color:#81C784;letter-spacing:3px;text-transform:uppercase}
+.rules-box{background:rgba(255,255,255,.05);border-radius:14px;padding:12px 16px;max-width:520px;text-align:left;display:flex;flex-direction:column;gap:8px}
+.rule-item{font-size:12px;color:#C8E6C9;line-height:1.4}
+.tag{display:inline-block;color:#fff;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:800;margin-right:4px;letter-spacing:1px}
+.tag-g{background:#10B981}.tag-p{background:#6366F1}.tag-o{background:#F59E0B}
+
+/* NAME+AGE */
+.name-input{background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.15);color:#E8F5E9;padding:10px 18px;border-radius:12px;font-size:15px;font-weight:700;font-family:inherit;text-align:center;width:240px;outline:none;transition:border-color .2s}
+.name-input:focus{border-color:#4ADE80}
+.name-input::placeholder{color:rgba(200,230,201,.35)}
+.age-label{font-size:12px;color:#A5D6A7;font-weight:700}
+.age-row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.age-btn{background:rgba(255,255,255,.07);border:2px solid rgba(255,255,255,.12);color:#C8E6C9;padding:8px 16px;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;min-width:90px}
+.age-btn:hover{border-color:#4ADE80;color:#4ADE80}
+.age-btn.sel{background:rgba(16,185,129,.2);border-color:#10B981;color:#6EE7B7}
+
+/* BUTTONS */
+.btn{color:#fff;border:none;padding:12px 44px;border-radius:50px;font-size:16px;font-weight:800;cursor:pointer;letter-spacing:2px;font-family:inherit;transition:transform .15s}
+.btn:hover{transform:scale(1.05)}.btn:active{transform:scale(.97)}.btn:disabled{opacity:.4;cursor:default;transform:none}
+.btn-green{background:linear-gradient(135deg,#10B981,#059669);box-shadow:0 4px 28px rgba(16,185,129,.35)}
+.btn-purple{background:linear-gradient(135deg,#6366F1,#4F46E5);box-shadow:0 4px 24px rgba(99,102,241,.35)}
+.btn-orange{background:linear-gradient(135deg,#F59E0B,#D97706);box-shadow:0 4px 24px rgba(245,158,11,.35)}
+.btn-sm{padding:8px 24px;font-size:13px;letter-spacing:1px}
+.btn-outline{background:transparent;border:2px solid #4ADE80;color:#4ADE80;padding:8px 24px;border-radius:30px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s}
+.btn-outline:hover{background:rgba(74,222,128,.1)}
+
+.final-num{font-size:58px;font-weight:900;background:linear-gradient(135deg,#F5C518,#F59E0B);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.final-lbl{font-size:12px;color:#81C784;text-transform:uppercase;letter-spacing:4px}
+.new-rec{color:#F5C518;font-size:14px;font-weight:800}
+.hi{color:#81C784;font-size:12px}
+
+/* HUD */
+.hud{display:flex;align-items:center;justify-content:space-between;padding:8px 120px 8px 14px;background:rgba(0,0,0,.45);border-bottom:1px solid rgba(255,255,255,.06)}
+.hud-score{font-weight:800;font-size:17px;color:#F5C518}
+.hud-info{font-size:11px;color:#81C784}
+.hud-step{display:inline-block;color:#fff;padding:3px 12px;border-radius:20px;font-size:11px;font-weight:800;letter-spacing:1px}
+.hud-lives{display:flex;gap:3px;font-size:16px}
+.life-off{opacity:.2}
+.feedback{position:absolute;top:50px;left:50%;transform:translateX(-50%);z-index:200;background:rgba(0,0,0,.88);padding:7px 22px;border-radius:30px;font-size:15px;font-weight:800;border:2px solid;pointer-events:none;white-space:nowrap;animation:feedIn .25s ease}
+@keyframes feedIn{from{opacity:0;transform:translateX(-50%) translateY(-10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+/* CONVEYOR */
+.conv-area{display:flex;flex-direction:column;justify-content:center;padding:20px 14px 14px;gap:20px}
+.conv-track{position:relative;height:100px;background:linear-gradient(180deg,#2D3A30,#1F2923);border-radius:14px;overflow:hidden;border:2px solid rgba(255,255,255,.08)}
+.conv-stripes{position:absolute;inset:0;background-image:repeating-linear-gradient(90deg,transparent,transparent 40px,rgba(255,255,255,.04) 40px,rgba(255,255,255,.04) 42px);animation:scrollS .8s linear infinite}
+@keyframes scrollS{from{background-position:0 0}to{background-position:42px 0}}
+.wi{position:absolute;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;gap:2px;cursor:grab;user-select:none;padding:6px 10px;background:rgba(255,255,255,.1);border-radius:11px;border:1px solid rgba(255,255,255,.18);z-index:10;backdrop-filter:blur(4px);transition:box-shadow .15s}
+.wi:hover{box-shadow:0 0 16px rgba(74,222,128,.3)}
+.wi.sel{box-shadow:0 0 20px rgba(74,222,128,.6);border-color:#4ADE80}
+.wi-e{font-size:28px;line-height:1}
+.wi-n{font-size:9px;color:#C8E6C9;font-weight:700;text-align:center;max-width:78px;line-height:1.2}
+.bins{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.bin{flex:1 1 120px;max-width:160px;min-height:90px;border-radius:15px;border:3px dashed;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;transition:transform .15s,box-shadow .2s}
+.bin:hover,.bin.over{transform:scale(1.06);box-shadow:0 0 20px rgba(255,255,255,.1)}
+.bin-e{font-size:28px}.bin-l{font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase}
+.combo{position:absolute;bottom:10px;right:16px;font-size:15px;font-weight:900;color:#F59E0B;text-shadow:0 0 12px rgba(245,158,11,.5);animation:pulse .6s ease infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+
+/* QUIZ & REPAIR cards */
+.card-area{display:flex;align-items:center;justify-content:center;padding:16px;min-height:460px}
+.card{background:rgba(255,255,255,.05);border-radius:20px;padding:24px 20px;max-width:460px;width:100%;text-align:center;border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(10px)}
+.card.repair-border{border-color:rgba(245,158,11,.15)}
+.card-tag{font-size:11px;text-transform:uppercase;letter-spacing:3px;margin-bottom:12px}
+.card-emoji{font-size:50px}
+.card-name{font-size:17px;font-weight:700;color:#E8F5E9;margin:6px 0 14px}
+.card-problem{font-size:13px;color:#FCA5A5;margin-bottom:14px;font-style:italic}
+.card-q{font-size:15px;font-weight:700;margin-bottom:12px}
+.opts{display:flex;flex-direction:column;gap:9px}
+.opt{background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.12);border-radius:13px;padding:11px 15px;color:#E8F5E9;font-size:14px;font-weight:600;cursor:pointer;text-align:left;font-family:inherit;transition:all .15s;width:100%}
+.opt:hover:not(:disabled){background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.25)}
+.opt.ok{background:rgba(16,185,129,.25);border-color:#10B981;color:#6EE7B7}
+.opt.ko{background:rgba(239,68,68,.25);border-color:#EF4444;color:#FCA5A5}
+.opt:disabled{cursor:default}
+.card-fb{margin-top:12px;font-size:14px;font-weight:800}
+.info-box{margin-top:12px;border-radius:12px;padding:10px 14px;text-align:left}
+.info-box.green{background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.2)}
+.info-box.orange{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2)}
+.info-t{font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:3px}
+.info-p{font-size:12px;line-height:1.4}
+
+/* TRANSITION overlay */
+.trans{position:absolute;inset:0;top:46px;z-index:100;background:rgba(13,23,16,.95);display:flex;align-items:center;justify-content:center;padding:20px}
+.trans-card{display:flex;flex-direction:column;align-items:center;gap:16px;text-align:center;max-width:400px}
+.trans-emoji{font-size:60px}
+.trans-title{font-size:24px;font-weight:900;color:#E8F5E9}
+.trans-sub{font-size:14px;color:#A5D6A7;line-height:1.5}
+.trans-score{font-size:16px;color:#F5C518;font-weight:800}
+
+/* LEADERBOARD */
+.lb{max-width:440px;width:100%;margin-top:4px}
+.lb-t{font-size:14px;font-weight:800;color:#F5C518;letter-spacing:2px;margin-bottom:8px;text-transform:uppercase}
+.lb table{width:100%;border-collapse:collapse}
+.lb th{font-size:10px;color:#81C784;text-transform:uppercase;letter-spacing:1px;padding:4px 8px;text-align:left;border-bottom:1px solid rgba(255,255,255,.08)}
+.lb td{font-size:13px;padding:5px 8px;border-bottom:1px solid rgba(255,255,255,.04)}
+.lb .rk{color:#F5C518;font-weight:800;width:30px}
+.lb .nm{color:#E8F5E9;font-weight:700}
+.lb .pt{color:#4ADE80;font-weight:800;text-align:right}
+.lb .me{background:rgba(74,222,128,.08);border-radius:8px}
+
+.hidden{display:none !important}
+
+/* MODE TOGGLE */
+.mode-row{display:flex;gap:8px;justify-content:center}
+.mode-btn{background:rgba(255,255,255,.07);border:2px solid rgba(255,255,255,.12);color:#C8E6C9;padding:8px 20px;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s}
+.mode-btn:hover{border-color:#22D3EE;color:#22D3EE}
+.mode-btn.sel{background:rgba(34,211,238,.15);border-color:#22D3EE;color:#67E8F9}
+
+/* TRANSFORMATION VISUAL */
+.transform{display:flex;align-items:center;justify-content:center;gap:12px;margin:16px 0;padding:16px;background:rgba(255,255,255,.04);border-radius:16px;border:1px solid rgba(255,255,255,.06)}
+.tf-before,.tf-after{display:flex;flex-direction:column;align-items:center;gap:4px}
+.tf-emoji{font-size:44px;line-height:1}
+.tf-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase}
+.tf-arrow{font-size:28px;color:#4ADE80;animation:arrowPulse 1.2s ease infinite}
+@keyframes arrowPulse{0%,100%{transform:translateX(0);opacity:.6}50%{transform:translateX(4px);opacity:1}}
+.tf-after .tf-emoji{animation:popIn .5s ease}
+@keyframes popIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+
+/* REPAIR VISUAL */
+.repair-vis{display:flex;align-items:center;justify-content:center;gap:16px;margin:14px 0}
+.rv-item{display:flex;flex-direction:column;align-items:center;gap:4px}
+.rv-emoji{font-size:48px;line-height:1}
+.rv-broken{filter:grayscale(.4);opacity:.7}
+.rv-fixed .rv-emoji{animation:sparkle .6s ease}
+.rv-sparkle{font-size:24px;animation:sparkle .8s ease}
+@keyframes sparkle{from{transform:scale(0) rotate(-20deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+</style>
+</head>
+<body>
+<div id="game">
+<div class="lang-bar">
+  <button class="lang-btn active" id="lb-fr">🇫🇷 FR</button>
+  <button class="lang-btn" id="lb-en">🇬🇧 EN</button>
+  <button class="lang-btn" id="lb-es">🇪🇸 ES</button>
+</div>
+
+<!-- START -->
+<div id="s-start" class="scr">
+  <p class="brand-line" id="u-assoc"></p>
+  <div class="big-emoji">♻️</div>
+  <h1 class="title">TRI & SECONDE VIE</h1>
+  <p class="subtitle" id="u-subtitle"></p>
+  <p class="brand-name">🏠 L'Oasis du Réemploi</p>
+  <div class="rules-box">
+    <p class="rule-item"><span class="tag tag-g">🚛 LE TRI</span> <span id="u-r1"></span></p>
+    <p class="rule-item"><span class="tag tag-p">♻️ LE QUIZ</span> <span id="u-r2"></span></p>
+    <p class="rule-item"><span class="tag tag-o">🔧 L'ATELIER</span> <span id="u-r3"></span></p>
+    <p class="rule-item" id="u-r4"></p>
+  </div>
+  <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+    <p class="age-label" id="u-mode"></p>
+    <div class="mode-row">
+      <button class="mode-btn sel" id="mode-solo" data-m="solo">🧑 <span id="u-solo"></span></button>
+      <button class="mode-btn" id="mode-team" data-m="team">👥 <span id="u-team"></span></button>
+    </div>
+  </div>
+  <input type="text" class="name-input" id="inp-name" maxlength="25">
+  <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+    <p class="age-label" id="u-age"></p>
+    <div class="age-row" id="age-row">
+      <button class="age-btn" data-a="child">👶 6–10</button>
+      <button class="age-btn" data-a="teen">🧑 11–15</button>
+      <button class="age-btn" data-a="adult">🧑‍🦱 16+</button>
+    </div>
+  </div>
+  <button class="btn btn-green" id="btn-go" disabled>▶ <span id="u-start"></span></button>
+  <div id="lb-start" class="lb hidden"></div>
+</div>
+
+<!-- GAME -->
+<div id="s-game" class="hidden">
+  <div class="hud">
+    <div style="display:flex;gap:12px;align-items:center">
+      <span class="hud-score" id="h-score">⭐ 0</span>
+      <span class="hud-info" id="h-round"></span>
+      <span class="hud-info" id="h-player"></span>
+    </div>
+    <div style="flex:1;text-align:center"><span class="hud-step tag-g" id="h-step"></span></div>
+    <div class="hud-lives" id="h-lives"></div>
+  </div>
+  <div id="fb" class="feedback hidden"></div>
+
+  <!-- TRI -->
+  <div id="p-tri" class="conv-area">
+    <div class="conv-track" id="conv"><div class="conv-stripes"></div></div>
+    <div class="bins" id="bins"></div>
+    <div id="combo" class="combo hidden"></div>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="p-quiz" class="card-area hidden">
+    <div class="card">
+      <p class="card-tag" id="u-qprompt" style="color:#81C784"></p>
+      <div class="card-emoji" id="q-emoji"></div>
+      <div class="card-name" id="q-name"></div>
+      <div id="q-transform" class="transform hidden"></div>
+      <p class="card-q" id="u-qq" style="color:#A5D6A7"></p>
+      <div class="opts" id="q-opts"></div>
+      <p id="q-fb" class="card-fb hidden"></p>
+      <div id="q-dyk" class="info-box green hidden"><p class="info-t" id="u-dykt" style="color:#4ADE80"></p><p class="info-p" id="q-dyk-p" style="color:#C8E6C9"></p></div>
+    </div>
+  </div>
+
+  <!-- REPAIR -->
+  <div id="p-repair" class="card-area hidden">
+    <div class="card repair-border">
+      <p class="card-tag" id="u-rprompt" style="color:#F59E0B"></p>
+      <div class="repair-vis">
+        <div class="rv-item rv-broken"><div class="rv-emoji" id="r-emoji"></div><span class="tf-label" style="color:#FCA5A5" id="r-state-before"></span></div>
+      </div>
+      <div class="card-name" id="r-name"></div>
+      <div class="card-problem" id="r-prob"></div>
+      <div id="r-after" class="repair-vis hidden"></div>
+      <p class="card-q" id="u-rq" style="color:#FCD34D"></p>
+      <div class="opts" id="r-opts"></div>
+      <p id="r-fb" class="card-fb hidden"></p>
+      <div id="r-tip" class="info-box orange hidden"><p class="info-t" id="u-ript" style="color:#F59E0B"></p><p class="info-p" id="r-tip-p" style="color:#FDE68A"></p></div>
+    </div>
+  </div>
+
+  <!-- TRANSITION (overlay inside game) -->
+  <div id="p-trans" class="trans hidden">
+    <div class="trans-card">
+      <div class="trans-emoji" id="tr-emoji"></div>
+      <div class="trans-title" id="tr-title"></div>
+      <div class="trans-sub" id="tr-sub"></div>
+      <div class="trans-score" id="tr-score"></div>
+      <button class="btn" id="tr-btn"></button>
+    </div>
+  </div>
+</div>
+
+<!-- GAME OVER -->
+<div id="s-over" class="scr hidden">
+  <div class="big-emoji">🏁</div>
+  <h1 class="title" style="font-size:24px" id="u-go"></h1>
+  <div style="text-align:center"><div class="final-num" id="o-score"></div><div class="final-lbl">points</div></div>
+  <p id="o-round" class="hi"></p>
+  <p id="o-rec" class="new-rec hidden"></p>
+  <p class="brand-name">🏠 L'Oasis du Réemploi — Friendly Upcycling</p>
+  <div id="lb-over" class="lb"></div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
+    <button class="btn btn-green btn-sm" id="btn-replay">🔄 <span id="u-replay"></span></button>
+    <button class="btn-outline" id="btn-home">🏠 <span id="u-home"></span></button>
+  </div>
+</div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════
+   TRANSLATIONS
+   ═══════════════════════════════════════ */
+const L={
+fr:{
+  assoc:"Une initiative Friendly Upcycling",subtitle:"Le jeu du tri intelligent",
+  r1:"Triez les déchets dans la bonne poubelle depuis le tapis roulant",
+  r2:"Devinez la seconde vie de chaque déchet bien trié",
+  r3:"Réparez un objet cassé à l'Atelier Réemploi",
+  r4:"💡 Combos = bonus · La vitesse augmente à chaque manche !",
+  age:"Votre tranche d'âge :",ph:"Votre prénom…",
+    mode:"Mode de jeu :",solo:"Solo",team:"Équipe",phTeam:"Nom de l'équipe…",
+    before:"Avant",after:"Après",broken:"Cassé",fixed:"Réparé ✨",
+  start:"COMMENCER",replay:"REJOUER",home:"ACCUEIL",go:"Partie terminée !",
+  round:"Manche",s1:"🚛 Le Tri",s2:"♻️ Le Quiz",s3:"🔧 L'Atelier",
+  qp:"Ce déchet a été bien trié !",qq:"Quelle est sa seconde vie ?",dyk:"Le saviez-vous ?",
+  rp:"Bienvenue à L'Oasis du Réemploi !",rq:"Quelle est la bonne technique ?",rtip:"Astuce réemploi",
+  ok:"Exact !",ko:"C'était :",bravo:"Bravo !",cmb:"Combo",
+  miss:"Raté !",wb:"Mauvaise poubelle !",rok:"Bien réparé !",rko:"Pas tout à fait…",
+  rec:"🏆 Nouveau record !",bs:"Meilleur score",rr:"Manche atteinte",
+  lbt:"🏆 Classement Séminaire",lbr:"#",lbn:"Joueur",lbs:"Score",
+  bins:{jaune:"Recyclable",verre:"Verre",compost:"Compost",gris:"Ordures"},
+  t1:{e:"✅",t:"Tri terminé !",s:"Voyons ce que deviennent vos déchets bien triés…",b:"Passer au Quiz ♻️"},
+  t2:{e:"🧠",t:"Quiz terminé !",s:"Direction l'atelier pour donner une seconde chance à un objet cassé…",b:"Aller à l'Atelier 🔧"},
+  t3:{e:"🎉",t:"Manche terminée !",s:"Prêt pour la suite ? Le tapis accélère…",b:"Manche suivante 🚛"}
+},
+en:{
+  assoc:"A Friendly Upcycling initiative",subtitle:"The smart sorting game",
+  r1:"Sort waste into the right bin from the conveyor belt",
+  r2:"Guess the second life of each correctly sorted item",
+  r3:"Repair a broken object at the Reuse Workshop",
+  r4:"💡 Combos = bonus · Speed increases every round!",
+  age:"Your age group:",ph:"Your first name…",
+    mode:"Game mode:",solo:"Solo",team:"Team",phTeam:"Team name…",
+    before:"Before",after:"After",broken:"Broken",fixed:"Fixed ✨",
+  start:"START",replay:"PLAY AGAIN",home:"HOME",go:"Game over!",
+  round:"Round",s1:"🚛 Sorting",s2:"♻️ Quiz",s3:"🔧 Workshop",
+  qp:"This waste was sorted correctly!",qq:"What is its second life?",dyk:"Did you know?",
+  rp:"Welcome to L'Oasis du Réemploi!",rq:"What's the right technique?",rtip:"Reuse tip",
+  ok:"Correct!",ko:"It was:",bravo:"Well done!",cmb:"Combo",
+  miss:"Missed!",wb:"Wrong bin!",rok:"Well repaired!",rko:"Not quite…",
+  rec:"🏆 New record!",bs:"Best score",rr:"Round reached",
+  lbt:"🏆 Seminar Leaderboard",lbr:"#",lbn:"Player",lbs:"Score",
+  bins:{jaune:"Recyclable",verre:"Glass",compost:"Compost",gris:"General"},
+  t1:{e:"✅",t:"Sorting complete!",s:"Let's find out what your sorted waste becomes…",b:"Start the Quiz ♻️"},
+  t2:{e:"🧠",t:"Quiz complete!",s:"Head to the workshop to give a broken object a second chance…",b:"Go to Workshop 🔧"},
+  t3:{e:"🎉",t:"Round complete!",s:"Ready for the next one? The belt speeds up…",b:"Next Round 🚛"}
+},
+es:{
+  assoc:"Una iniciativa de Friendly Upcycling",subtitle:"El juego de la clasificación inteligente",
+  r1:"Clasifica los residuos en el contenedor correcto desde la cinta",
+  r2:"Adivina la segunda vida de cada residuo bien clasificado",
+  r3:"Repara un objeto roto en el Taller de Reutilización",
+  r4:"💡 Combos = bonus · ¡La velocidad aumenta en cada ronda!",
+  age:"Tu grupo de edad:",ph:"Tu nombre…",
+    mode:"Modo de juego:",solo:"Solo",team:"Equipo",phTeam:"Nombre del equipo…",
+    before:"Antes",after:"Después",broken:"Roto",fixed:"Reparado ✨",
+  start:"EMPEZAR",replay:"JUGAR DE NUEVO",home:"INICIO",go:"¡Partida terminada!",
+  round:"Ronda",s1:"🚛 Clasificar",s2:"♻️ Quiz",s3:"🔧 Taller",
+  qp:"¡Este residuo fue bien clasificado!",qq:"¿Cuál es su segunda vida?",dyk:"¿Sabías que...?",
+  rp:"¡Bienvenido a L'Oasis du Réemploi!",rq:"¿Cuál es la técnica correcta?",rtip:"Consejo",
+  ok:"¡Correcto!",ko:"Era:",bravo:"¡Bien hecho!",cmb:"Combo",
+  miss:"¡Perdido!",wb:"¡Contenedor equivocado!",rok:"¡Bien reparado!",rko:"No exactamente…",
+  rec:"🏆 ¡Nuevo récord!",bs:"Mejor puntaje",rr:"Ronda alcanzada",
+  lbt:"🏆 Clasificación Seminario",lbr:"#",lbn:"Jugador",lbs:"Puntos",
+  bins:{jaune:"Reciclable",verre:"Vidrio",compost:"Compost",gris:"General"},
+  t1:{e:"✅",t:"¡Clasificación completa!",s:"Veamos en qué se convierten tus residuos…",b:"Ir al Quiz ♻️"},
+  t2:{e:"🧠",t:"¡Quiz completo!",s:"Vamos al taller para darle una segunda oportunidad a un objeto roto…",b:"Ir al Taller 🔧"},
+  t3:{e:"🎉",t:"¡Ronda completa!",s:"¿Listo? ¡La cinta acelera…!",b:"Siguiente Ronda 🚛"}
+}};
+
+let lang="fr";
+function t(k){return L[lang][k]||L.fr[k]||k}
+
+/* ═══════════════════════════════════════
+   DATA
+   ═══════════════════════════════════════ */
+const BINS=[
+  {id:"jaune",color:"#F5C518",emoji:"📦",accepts:["plastique","carton","metal"]},
+  {id:"verre",color:"#2E8B57",emoji:"🍾",accepts:["verre"]},
+  {id:"compost",color:"#8B4513",emoji:"🌱",accepts:["organique"]},
+  {id:"gris",color:"#6B7280",emoji:"🗑️",accepts:["residuel"]}
+];
+const W=[
+  {e:"🧴",b:"plastique",n:{fr:"Bouteille plastique",en:"Plastic bottle",es:"Botella de plástico"},v:{fr:"Un pull en polaire",en:"A fleece sweater",es:"Un jersey polar"},f:{fr:["Un pneu","Du ciment","Une ampoule"],en:["A tire","Cement","A bulb"],es:["Un neumático","Cemento","Una bombilla"]},d:{fr:"Recycler 1 bouteille = 6h d'éclairage économisées.",en:"Recycling 1 bottle saves 6h of lighting energy.",es:"Reciclar 1 botella ahorra 6h de iluminación."}},
+  {e:"🫧",b:"plastique",n:{fr:"Flacon lessive",en:"Detergent bottle",es:"Frasco de detergente"},v:{fr:"Un tuyau d'arrosage",en:"A garden hose",es:"Una manguera"},f:{fr:["Du pain","Un miroir","Du béton"],en:["Bread","A mirror","Concrete"],es:["Pan","Un espejo","Hormigón"]},d:{fr:"Le plastique met 100 à 1000 ans à se décomposer.",en:"Plastic takes 100–1,000 years to decompose.",es:"El plástico tarda 100–1.000 años."}},
+  {e:"🥛",b:"plastique",n:{fr:"Bouteille de lait",en:"Milk bottle",es:"Botella de leche"},v:{fr:"Un banc public",en:"A park bench",es:"Un banco público"},f:{fr:["Du papier","Un pneu","Du verre"],en:["Paper","A tire","Glass"],es:["Papel","Un neumático","Vidrio"]},d:{fr:"250 bouteilles de lait = 1 banc public !",en:"250 milk bottles = 1 park bench!",es:"¡250 botellas de leche = 1 banco!"}},
+  {e:"🛍️",b:"plastique",n:{fr:"Sac plastique",en:"Plastic bag",es:"Bolsa de plástico"},v:{fr:"Du mobilier urbain",en:"Street furniture",es:"Mobiliario urbano"},f:{fr:["Du verre","Un livre","Du compost"],en:["Glass","A book","Compost"],es:["Vidrio","Un libro","Compost"]},d:{fr:"Un sac plastique met 400 ans à se décomposer !",en:"A plastic bag takes 400 years!",es:"¡Una bolsa tarda 400 años!"}},
+  {e:"🥫",b:"metal",n:{fr:"Canette alu",en:"Aluminum can",es:"Lata de aluminio"},v:{fr:"Une trottinette",en:"A scooter",es:"Un patinete"},f:{fr:["Du papier","Un miroir","Du compost"],en:["Paper","A mirror","Compost"],es:["Papel","Un espejo","Compost"]},d:{fr:"Une canette recyclée revient en rayon sous 60 jours !",en:"A recycled can returns to shelves in 60 days!",es:"¡Una lata reciclada vuelve en 60 días!"}},
+  {e:"🥡",b:"metal",n:{fr:"Barquette alu",en:"Aluminum tray",es:"Bandeja de aluminio"},v:{fr:"Un cadre de vélo",en:"A bicycle frame",es:"Un cuadro de bici"},f:{fr:["Un livre","Du terreau","Une vitre"],en:["A book","Soil","A window"],es:["Un libro","Tierra","Una ventana"]},d:{fr:"L'aluminium est recyclable à l'infini !",en:"Aluminum is infinitely recyclable!",es:"¡El aluminio es reciclable infinitamente!"}},
+  {e:"🔧",b:"metal",n:{fr:"Boîte de conserve",en:"Tin can",es:"Lata de conserva"},v:{fr:"Une pièce automobile",en:"A car part",es:"Una pieza de coche"},f:{fr:["Un fruit","Du tissu","Du parfum"],en:["A fruit","Fabric","Perfume"],es:["Una fruta","Tela","Perfume"]},d:{fr:"1 tonne d'acier recyclé = 1,5 t de minerai économisé.",en:"1 ton recycled steel saves 1.5 tons of ore.",es:"1 t de acero reciclado = 1,5 t de mineral."}},
+  {e:"🧲",b:"metal",n:{fr:"Aérosol vide",en:"Empty spray can",es:"Aerosol vacío"},v:{fr:"Du fil de fer",en:"Wire",es:"Alambre"},f:{fr:["Du bois","Un jouet","Du savon"],en:["Wood","A toy","Soap"],es:["Madera","Un juguete","Jabón"]},d:{fr:"Les aérosols vides se recyclent comme les conserves !",en:"Empty aerosols recycle like cans!",es:"¡Los aerosoles se reciclan como latas!"}},
+  {e:"📰",b:"carton",n:{fr:"Journal",en:"Newspaper",es:"Periódico"},v:{fr:"Du papier toilette recyclé",en:"Recycled toilet paper",es:"Papel higiénico reciclado"},f:{fr:["Un bijou","Du verre","De l'essence"],en:["Jewelry","Glass","Gasoline"],es:["Una joya","Vidrio","Gasolina"]},d:{fr:"1 tonne de papier recyclé sauve 17 arbres !",en:"1 ton recycled paper saves 17 trees!",es:"¡1 tonelada de papel salva 17 árboles!"}},
+  {e:"🍕",b:"carton",n:{fr:"Carton pizza (propre)",en:"Pizza box (clean)",es:"Caja de pizza (limpia)"},v:{fr:"Une boîte à chaussures",en:"A shoe box",es:"Una caja de zapatos"},f:{fr:["De l'huile","Un pneu","Du savon"],en:["Oil","A tire","Soap"],es:["Aceite","Un neumático","Jabón"]},d:{fr:"Un carton gras ne se recycle pas !",en:"A greasy box can't be recycled!",es:"¡Un cartón grasiento no se recicla!"}},
+  {e:"📚",b:"carton",n:{fr:"Magazine",en:"Magazine",es:"Revista"},v:{fr:"Du carton d'emballage",en:"Packaging cardboard",es:"Cartón de embalaje"},f:{fr:["De l'huile","Du plastique","Du métal"],en:["Oil","Plastic","Metal"],es:["Aceite","Plástico","Metal"]},d:{fr:"Le papier se recycle jusqu'à 7 fois.",en:"Paper can be recycled up to 7 times.",es:"El papel se recicla hasta 7 veces."}},
+  {e:"🧃",b:"carton",n:{fr:"Brique de jus",en:"Juice carton",es:"Brick de zumo"},v:{fr:"Du papier d'écriture",en:"Writing paper",es:"Papel de escritura"},f:{fr:["Du verre","Un pneu","De la peinture"],en:["Glass","A tire","Paint"],es:["Vidrio","Un neumático","Pintura"]},d:{fr:"Les briques = carton + plastique + alu, tout séparé au recyclage.",en:"Cartons = cardboard + plastic + aluminum, all separated.",es:"Los bricks = cartón + plástico + aluminio, todo separado."}},
+  {e:"✉️",b:"carton",n:{fr:"Enveloppe",en:"Envelope",es:"Sobre"},v:{fr:"Un cahier recyclé",en:"A recycled notebook",es:"Un cuaderno reciclado"},f:{fr:["Du verre","Une bougie","Du métal"],en:["Glass","A candle","Metal"],es:["Vidrio","Una vela","Metal"]},d:{fr:"Même les enveloppes à fenêtre se recyclent !",en:"Even windowed envelopes are recyclable!",es:"¡Hasta los sobres con ventanilla se reciclan!"}},
+  {e:"🍷",b:"verre",n:{fr:"Bouteille de vin",en:"Wine bottle",es:"Botella de vino"},v:{fr:"Une nouvelle bouteille",en:"A new bottle",es:"Una nueva botella"},f:{fr:["Un T-shirt","Du bois","Un câble"],en:["A T-shirt","Wood","A cable"],es:["Una camiseta","Madera","Un cable"]},d:{fr:"Le verre est recyclable à 100 %, à l'infini !",en:"Glass is 100% infinitely recyclable!",es:"¡El vidrio es reciclable al 100 %, infinitamente!"}},
+  {e:"🫙",b:"verre",n:{fr:"Pot de confiture",en:"Jam jar",es:"Tarro de mermelada"},v:{fr:"De la laine de verre",en:"Glass wool insulation",es:"Lana de vidrio"},f:{fr:["Un sac plastique","Du gazon","Un stylo"],en:["A plastic bag","Grass","A pen"],es:["Una bolsa","Césped","Un bolígrafo"]},d:{fr:"Recycler le verre = −30 % d'énergie vs fabrication neuve.",en:"Recycling glass cuts energy by 30% vs new.",es:"Reciclar vidrio reduce 30 % la energía."}},
+  {e:"🍺",b:"verre",n:{fr:"Bouteille de bière",en:"Beer bottle",es:"Botella de cerveza"},v:{fr:"De la fibre de verre",en:"Fiberglass",es:"Fibra de vidrio"},f:{fr:["Un chapeau","De la peinture","Un balai"],en:["A hat","Paint","A broom"],es:["Un sombrero","Pintura","Una escoba"]},d:{fr:"Le verre met 4 000 ans à se dégrader — recyclez-le !",en:"Glass takes 4,000 years to decompose — recycle it!",es:"¡El vidrio tarda 4 000 años — recíclalo!"}},
+  {e:"🥕",b:"organique",n:{fr:"Épluchures",en:"Peelings",es:"Cáscaras"},v:{fr:"Du compost pour le jardin",en:"Garden compost",es:"Compost para el jardín"},f:{fr:["Du plastique","Du carton","Un jouet"],en:["Plastic","Cardboard","A toy"],es:["Plástico","Cartón","Un juguete"]},d:{fr:"Les déchets organiques = 30 % de nos poubelles !",en:"Organic waste = 30% of our trash!",es:"¡Los orgánicos = 30 % de nuestra basura!"}},
+  {e:"🍵",b:"organique",n:{fr:"Sachet de thé",en:"Tea bag",es:"Bolsa de té"},v:{fr:"De l'engrais naturel",en:"Natural fertilizer",es:"Fertilizante natural"},f:{fr:["Du papier peint","Un CD","Une brique"],en:["Wallpaper","A CD","A brick"],es:["Papel tapiz","Un CD","Un ladrillo"]},d:{fr:"Le marc de thé repousse les insectes.",en:"Tea grounds repel insects.",es:"Los posos de té repelen insectos."}},
+  {e:"🥚",b:"organique",n:{fr:"Coquilles d'œufs",en:"Eggshells",es:"Cáscaras de huevo"},v:{fr:"Un amendement calcaire",en:"Lime amendment",es:"Enmienda de cal"},f:{fr:["Du plastique","Un ballon","Une lampe"],en:["Plastic","A ball","A lamp"],es:["Plástico","Un balón","Una lámpara"]},d:{fr:"Les coquilles enrichissent le sol en calcium.",en:"Eggshells enrich soil with calcium.",es:"Las cáscaras enriquecen el suelo."}},
+  {e:"🍌",b:"organique",n:{fr:"Peau de banane",en:"Banana peel",es:"Piel de plátano"},v:{fr:"Du biogaz",en:"Biogas",es:"Biogás"},f:{fr:["Du plastique","Du métal","Un vêtement"],en:["Plastic","Metal","A garment"],es:["Plástico","Metal","Una prenda"]},d:{fr:"La peau de banane se décompose en 2 ans.",en:"Banana peels decompose in 2 years.",es:"La piel de plátano se descompone en 2 años."}},
+  {e:"☕",b:"organique",n:{fr:"Marc de café",en:"Coffee grounds",es:"Posos de café"},v:{fr:"De l'engrais pour tomates",en:"Tomato fertilizer",es:"Abono para tomates"},f:{fr:["Du goudron","Un crayon","Du verre"],en:["Tar","A pencil","Glass"],es:["Alquitrán","Un lápiz","Vidrio"]},d:{fr:"Le marc de café = gommage naturel ou engrais.",en:"Coffee grounds = scrub or fertilizer.",es:"Posos de café = exfoliante o abono."}},
+  {e:"🤧",b:"residuel",n:{fr:"Mouchoir usagé",en:"Used tissue",es:"Pañuelo usado"},v:null,f:{fr:[],en:[],es:[]},d:{fr:"Les mouchoirs sont incinérés pour produire de l'énergie.",en:"Tissues are incinerated for energy.",es:"Los pañuelos se incineran para energía."}},
+  {e:"🧷",b:"residuel",n:{fr:"Couche bébé",en:"Baby diaper",es:"Pañal de bebé"},v:null,f:{fr:[],en:[],es:[]},d:{fr:"Une couche met 500 ans à se décomposer !",en:"A diaper takes 500 years!",es:"¡Un pañal tarda 500 años!"}},
+  {e:"🪥",b:"residuel",n:{fr:"Brosse à dents",en:"Toothbrush",es:"Cepillo de dientes"},v:null,f:{fr:[],en:[],es:[]},d:{fr:"5 milliards de brosses en décharge par an.",en:"5 billion toothbrushes landfilled yearly.",es:"5 mil millones de cepillos en vertederos."}},
+  {e:"🧽",b:"residuel",n:{fr:"Éponge usagée",en:"Used sponge",es:"Esponja usada"},v:null,f:{fr:[],en:[],es:[]},d:{fr:"Les éponges luffa sont compostables !",en:"Loofah sponges are compostable!",es:"¡Las esponjas de luffa son compostables!"}},
+  {e:"💄",b:"residuel",n:{fr:"Tube de dentifrice",en:"Toothpaste tube",es:"Tubo de pasta"},v:null,f:{fr:[],en:[],es:[]},d:{fr:"Les tubes mélangent plastique et alu — trop complexes.",en:"Tubes mix plastic and aluminum — too complex.",es:"Los tubos mezclan plástico y aluminio."}}
+];
+const R=[
+  {e:"🪑",n:{fr:"Chaise bancale",en:"Wobbly chair",es:"Silla tambaleante"},p:{fr:"Un pied est cassé",en:"One leg is broken",es:"Una pata rota"},c:{fr:"Recoller, poncer et repeindre",en:"Reglue, sand and repaint",es:"Reencolar, lijar y repintar"},f:{fr:["Jeter et racheter","Couper les 3 autres pieds"],en:["Throw away and buy new","Cut the other 3 legs"],es:["Tirar y comprar nueva","Cortar las otras 3 patas"]},tip:{fr:"À L'Oasis, on répare les meubles gratuitement !",en:"At L'Oasis, we repair furniture for free!",es:"¡En L'Oasis reparamos muebles gratis!"}},
+  {e:"👖",n:{fr:"Jean troué",en:"Ripped jeans",es:"Vaqueros rotos"},p:{fr:"Un gros trou au genou",en:"A big hole at the knee",es:"Un agujero en la rodilla"},c:{fr:"Patcher et customiser avec du tissu",en:"Patch and customize with fabric",es:"Parchar con tela"},f:{fr:["Jeter à la poubelle","Utiliser comme serpillière"],en:["Throw in trash","Use as a mop"],es:["Tirar a la basura","Usar como trapo"]},tip:{fr:"Un jean = sac, short ou isolant textile !",en:"Jeans become bags, shorts or insulation!",es:"¡Los vaqueros se convierten en bolsos o bermudas!"}},
+  {e:"📱",n:{fr:"Téléphone fissuré",en:"Cracked phone",es:"Teléfono agrietado"},p:{fr:"Écran fissuré mais fonctionnel",en:"Cracked screen but works",es:"Pantalla agrietada pero funciona"},c:{fr:"Remplacer l'écran en atelier",en:"Replace screen at workshop",es:"Reemplazar pantalla en taller"},f:{fr:["Acheter le dernier modèle","Le jeter au verre"],en:["Buy the latest model","Throw in glass bin"],es:["Comprar el último modelo","Tirarlo al vidrio"]},tip:{fr:"80 % des pannes de téléphone sont réparables pour < 50 € !",en:"80% of phone issues fixable for under €50!",es:"¡80 % de averías se reparan por menos de 50 €!"}},
+  {e:"🚲",n:{fr:"Vélo rouillé",en:"Rusty bike",es:"Bicicleta oxidada"},p:{fr:"Chaîne rouillée, freins grippés",en:"Rusty chain, stuck brakes",es:"Cadena oxidada, frenos agarrotados"},c:{fr:"Dégraisser, huiler et régler",en:"Degrease, oil and adjust",es:"Desengrasar, aceitar y ajustar"},f:{fr:["Le mettre en déchetterie","Acheter un vélo neuf"],en:["Take to the dump","Buy a new bike"],es:["Llevarlo al punto limpio","Comprar una bici nueva"]},tip:{fr:"Un entretien = 20 € et +10 ans de vie !",en:"Maintenance = €20 and 10 more years!",es:"¡Mantenimiento = 20 € y 10 años más!"}},
+  {e:"💡",n:{fr:"Lampe cassée",en:"Broken lamp",es:"Lámpara rota"},p:{fr:"Le câble est coupé",en:"Cable is cut",es:"El cable está cortado"},c:{fr:"Remplacer le câble électrique",en:"Replace the cable",es:"Reemplazar el cable"},f:{fr:["La jeter entièrement","Scotcher le câble"],en:["Throw it all away","Tape the cable"],es:["Tirarla entera","Poner cinta"]},tip:{fr:"Réparer = 5 min + 3 €. Jeter = 15 kg CO₂ pour une neuve !",en:"Fix = 5 min + €3. Throwing = 15 kg CO₂ for a new one!",es:"Reparar = 5 min + 3 €. Tirar = 15 kg CO₂ para una nueva."}},
+  {e:"🧸",n:{fr:"Peluche décousue",en:"Ripped stuffed toy",es:"Peluche descosido"},p:{fr:"Couture craquée, rembourrage sort",en:"Seam split, stuffing out",es:"Costura rota, sale relleno"},c:{fr:"Recoudre et rembourrer à la main",en:"Hand-sew and re-stuff",es:"Coser a mano y rellenar"},f:{fr:["La jeter","La mettre au recyclage"],en:["Throw in trash","Put in recycling"],es:["Tirarla","Ponerla en reciclaje"]},tip:{fr:"Les jouets réparés font le bonheur d'autres enfants !",en:"Repaired toys bring joy to other children!",es:"¡Los juguetes reparados alegran a otros niños!"}},
+  {e:"👟",n:{fr:"Chaussure décollée",en:"Unglued shoe",es:"Zapato despegado"},p:{fr:"La semelle se décolle",en:"Sole coming off",es:"La suela se despega"},c:{fr:"Recoller avec de la colle néoprène",en:"Reglue with neoprene adhesive",es:"Reencolar con neopreno"},f:{fr:["Les jeter","Les agrafer"],en:["Throw away","Staple them"],es:["Tirar","Graparlos"]},tip:{fr:"Un cordonnier resemèle pour 15 € — des années en plus !",en:"A cobbler resolves for €15 — years more!",es:"Un zapatero resuela por 15 € — ¡años más!"}},
+  {e:"🖥️",n:{fr:"Ordinateur lent",en:"Slow computer",es:"Ordenador lento"},p:{fr:"Très lent, 5 min au démarrage",en:"Very slow, 5 min boot",es:"Muy lento, 5 min arranque"},c:{fr:"Ajouter RAM et installer un SSD",en:"Add RAM and install SSD",es:"Añadir RAM e instalar SSD"},f:{fr:["Acheter un PC neuf","Le jeter aux encombrants"],en:["Buy a new PC","Throw in bulky waste"],es:["Comprar un PC nuevo","Tirarlo"]},tip:{fr:"Un SSD à 30 € = 5 ans de vie en plus !",en:"A €30 SSD = 5 more years!",es:"¡Un SSD de 30 € = 5 años más!"}},
+  {e:"🎒",n:{fr:"Sac à dos déchiré",en:"Torn backpack",es:"Mochila rota"},p:{fr:"La fermeture éclair est cassée",en:"The zipper is broken",es:"La cremallera está rota"},c:{fr:"Remplacer la fermeture éclair",en:"Replace the zipper",es:"Reemplazar la cremallera"},f:{fr:["Le jeter","Le transformer en coussin"],en:["Throw it away","Turn it into a pillow"],es:["Tirarlo","Convertirlo en cojín"]},tip:{fr:"Un retoucheur remplace une fermeture pour environ 10 € !",en:"A tailor replaces a zipper for about €10!",es:"¡Un sastre cambia una cremallera por unos 10 €!"}},
+  {e:"🍳",n:{fr:"Poêle qui accroche",en:"Sticky frying pan",es:"Sartén que se pega"},p:{fr:"Le revêtement est rayé, tout colle",en:"Coating is scratched, everything sticks",es:"El revestimiento está rayado, todo se pega"},c:{fr:"La faire reconditionner par un professionnel",en:"Have it reconditioned by a professional",es:"Llevarla a reacondicionar"},f:{fr:["La jeter et en racheter une","La poncer soi-même"],en:["Throw away and buy new","Sand it yourself"],es:["Tirarla y comprar nueva","Lijarla uno mismo"]},tip:{fr:"Des entreprises re-revêtissent les poêles pour 15 € — zéro déchet !",en:"Companies recoat pans for €15 — zero waste!",es:"¡Empresas reacondicionan sartenes por 15 € — cero residuos!"}},
+  {e:"🪞",n:{fr:"Miroir fêlé",en:"Cracked mirror",es:"Espejo agrietado"},p:{fr:"Une fêlure en étoile dans un coin",en:"A star crack in one corner",es:"Una grieta en estrella en una esquina"},c:{fr:"Découper en petits miroirs décoratifs",en:"Cut into small decorative mirrors",es:"Cortar en pequeños espejos decorativos"},f:{fr:["Le jeter au verre","Le recouvrir de peinture"],en:["Throw in glass bin","Cover with paint"],es:["Tirarlo al vidrio","Cubrirlo con pintura"]},tip:{fr:"L'upcycling transforme un défaut en création unique !",en:"Upcycling turns a flaw into a unique creation!",es:"¡El upcycling convierte un defecto en una creación única!"}},
+  {e:"📻",n:{fr:"Radio vintage muette",en:"Silent vintage radio",es:"Radio vintage muda"},p:{fr:"Plus aucun son ne sort",en:"No sound at all",es:"No sale ningún sonido"},c:{fr:"Remplacer le haut-parleur",en:"Replace the speaker",es:"Reemplazar el altavoz"},f:{fr:["La jeter aux DEEE","La transformer en pot de fleurs"],en:["Throw in e-waste","Turn into a plant pot"],es:["Tirarla a electrónicos","Convertirla en maceta"]},tip:{fr:"Les appareils vintage réparés ont une vraie valeur — certains se revendent cher !",en:"Repaired vintage devices hold real value — some resell for a lot!",es:"¡Los aparatos vintage reparados tienen valor — algunos se revenden caro!"}},
+  {e:"🧥",n:{fr:"Manteau déchiré",en:"Torn coat",es:"Abrigo rasgado"},p:{fr:"Une déchirure sous le bras",en:"A tear under the arm",es:"Un desgarro bajo el brazo"},c:{fr:"Coudre avec un patch assorti ou contrasté",en:"Sew with a matching or contrasting patch",es:"Coser con un parche a juego o contrastado"},f:{fr:["Le jeter","L'utiliser comme chiffon"],en:["Throw it away","Use as a rag"],es:["Tirarlo","Usarlo como trapo"]},tip:{fr:"La mode visible mending transforme les réparations en style !",en:"Visible mending fashion turns repairs into style!",es:"¡La moda del visible mending convierte las reparaciones en estilo!"}},
+  {e:"⌚",n:{fr:"Montre arrêtée",en:"Stopped watch",es:"Reloj parado"},p:{fr:"La pile est morte",en:"Battery is dead",es:"La pila está agotada"},c:{fr:"Changer la pile chez un horloger",en:"Replace battery at a watchmaker",es:"Cambiar la pila en un relojero"},f:{fr:["Acheter une montre connectée","La jeter aux ordures"],en:["Buy a smart watch","Throw in trash"],es:["Comprar un reloj inteligente","Tirarlo a la basura"]},tip:{fr:"Changer une pile de montre coûte 5 € et prend 2 minutes !",en:"Replacing a watch battery costs €5 and takes 2 minutes!",es:"¡Cambiar una pila de reloj cuesta 5 € y toma 2 minutos!"}}
+];
+
+/* ═══ DIFFICULTY ═══ */
+
+/* Result emojis: what waste becomes after recycling */
+const VIS_QUIZ={
+  "🧴":"🧥","🫧":"🪴","🥛":"🪑","🛍️":"🏗️",
+  "🥫":"🛴","🥡":"🚲","🔧":"🚗","🧲":"🔗",
+  "📰":"🧻","🍕":"👟","📚":"📦","🧃":"📝","✉️":"📒",
+  "🍷":"🍷","🫙":"🧶","🍺":"🪟",
+  "🥕":"🌱","🍵":"🌿","🥚":"🌾","🍌":"⚡","☕":"🍅"
+};
+/* Repair: after emoji (fixed state) */
+const VIS_REPAIR={
+  "🪑":"🪑","👖":"👖","📱":"📱","🚲":"🚲","💡":"💡",
+  "🧸":"🧸","👟":"👟","🖥️":"🖥️","🎒":"🎒","🍳":"🍳",
+  "🪞":"🪞","📻":"📻","🧥":"🧥","⌚":"⌚"
+};
+
+const D={child:{spd:.45,goal:12,qn:6,rn:4,acc:.03,hp:6},teen:{spd:.7,goal:16,qn:8,rn:6,acc:.06,hp:5},adult:{spd:.9,goal:16,qn:10,rn:8,acc:.1,hp:4}};
+let age=null,pName="",hiBest=0;
+function d(){return D[age]||D.teen}
+
+/* ═══ STATE ═══ */
+let S={},anim=null,lt=null,fbT=null,drag=null;
+function reset(){S={scr:"start",sc:0,rnd:1,step:"tri",lives:d().hp,sorted:0,cmb:0,items:[],got:[],qQ:[],qI:0,rQ:[],rI:0}}
+
+/* ═══ HELPERS ═══ */
+function shuf(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b}
+function el(id){return document.getElementById(id)}
+function show(id){el(id).classList.remove("hidden")}
+function hide(id){el(id).classList.add("hidden")}
+function esc(s){const d=document.createElement("div");d.textContent=s;return d.innerHTML}
+
+/* ═══ LEADERBOARD ═══ */
+function getLB(){try{return JSON.parse(localStorage.getItem("oasis_lb")||"[]")}catch(e){return[]}}
+function saveLB(n,s,a){const lb=getLB();lb.push({n:n,s:s,a:a,m:gameMode,d:Date.now()});lb.sort((a,b)=>b.s-a.s);if(lb.length>50)lb.length=50;localStorage.setItem("oasis_lb",JSON.stringify(lb))}
+function drawLB(id){const lb=getLB(),c=el(id);if(!c)return;if(!lb.length){c.classList.add("hidden");return}c.classList.remove("hidden");const top=lb.slice(0,10);let h=`<p class="lb-t">${t("lbt")}</p><table><tr><th>${t("lbr")}</th><th>${t("lbn")}</th><th style="text-align:right">${t("lbs")}</th></tr>`;top.forEach((e,i)=>{const me=(e.n===pName)?"me":"";const icon=e.m==="team"?"👥 ":"";h+=`<tr class="${me}"><td class="rk">${i+1}</td><td class="nm">${icon}${esc(e.n)}</td><td class="pt">${e.s}</td></tr>`});h+=`</table>`;c.innerHTML=h}
+
+/* ═══ UI REFRESH ═══ */
+let gameMode="solo";
+function refreshUI(){
+  const s=(id,v)=>{const e=el(id);if(e)e.textContent=v};
+  s("u-assoc",t("assoc"));s("u-subtitle",t("subtitle"));
+  s("u-r1",t("r1"));s("u-r2",t("r2"));s("u-r3",t("r3"));s("u-r4",t("r4"));
+  s("u-age",t("age"));s("u-start",t("start"));s("u-replay",t("replay"));s("u-home",t("home"));
+  s("u-go",t("go"));s("u-qprompt",t("qp"));s("u-qq",t("qq"));s("u-dykt",t("dyk"));
+  s("u-rprompt",t("rp"));s("u-rq",t("rq"));s("u-ript",t("rtip"));
+  s("u-mode",t("mode"));s("u-solo",t("solo"));s("u-team",t("team"));
+  el("inp-name").placeholder=gameMode==="team"?t("phTeam"):t("ph");
+  drawLB("lb-start");
+}
+
+/* ═══ HUD ═══ */
+function hud(){
+  el("h-score").textContent="⭐ "+S.sc;
+  el("h-round").textContent=t("round")+" "+S.rnd;
+  el("h-player").textContent=(gameMode==="team"?"👥 ":"🧑 ")+pName;
+  const lv=el("h-lives");lv.innerHTML="";
+  for(let i=0;i<d().hp;i++){const s=document.createElement("span");s.textContent="❤️";if(i>=S.lives)s.classList.add("life-off");lv.appendChild(s)}
+  const st=el("h-step");
+  if(S.step==="tri"){st.className="hud-step tag-g";st.textContent=t("s1")+" ("+S.sorted+"/"+d().goal+")"}
+  else if(S.step==="quiz"){st.className="hud-step tag-p";st.textContent=t("s2")+" ("+(S.qI+1)+"/"+S.qQ.length+")"}
+  else if(S.step==="repair"){st.className="hud-step tag-o";st.textContent=t("s3")+" ("+(S.rI+1)+"/"+S.rQ.length+")"}
+  else{st.className="hud-step tag-g";st.textContent=""}
+}
+function showFB(txt,col){clearTimeout(fbT);const e=el("fb");e.textContent=txt;e.style.color=col;e.style.borderColor=col;e.classList.remove("hidden");e.style.animation="none";e.offsetHeight;e.style.animation="";fbT=setTimeout(()=>hide("fb"),1200)}
+
+/* ═══ BINS ═══ */
+function mkBins(){
+  const r=el("bins");r.innerHTML="";
+  BINS.forEach(bin=>{
+    const d=document.createElement("div");d.className="bin";
+    d.style.borderColor=bin.color;d.style.background=bin.color+"18";
+    d.innerHTML=`<span class="bin-e">${bin.emoji}</span><span class="bin-l" style="color:${bin.color}">${t("bins")[bin.id]}</span>`;
+    d.addEventListener("dragover",ev=>{ev.preventDefault();d.classList.add("over")});
+    d.addEventListener("dragleave",()=>d.classList.remove("over"));
+    d.addEventListener("drop",ev=>{ev.preventDefault();d.classList.remove("over");doDrop(bin.id)});
+    d.addEventListener("click",()=>doDrop(bin.id));
+    r.appendChild(d);
+  });
+}
+
+/* ═══ CONVEYOR ═══ */
+function spawn(){
+  const cv=el("conv");cv.querySelectorAll(".wi").forEach(e=>e.remove());
+  const pool=shuf(W).slice(0,d().goal+3);
+  S.items=pool.map((w,i)=>({...w,uid:S.rnd+"-"+i+"-"+Date.now(),x:-90-i*140,caught:false}));
+  S.sorted=0;S.got=[];
+  S.items.forEach(it=>{
+    const e=document.createElement("div");e.className="wi";e.id="i-"+it.uid;e.draggable=true;
+    e.innerHTML=`<span class="wi-e">${it.e}</span><span class="wi-n">${it.n[lang]||it.n.fr}</span>`;
+    e.style.left=it.x+"px";
+    e.addEventListener("dragstart",ev=>{drag=it.uid;e.classList.add("sel");ev.dataTransfer.setData("text/plain",it.uid)});
+    e.addEventListener("dragend",()=>e.classList.remove("sel"));
+    e.addEventListener("click",()=>{cv.querySelectorAll(".wi").forEach(w=>w.classList.remove("sel"));drag=it.uid;e.classList.add("sel")});
+    cv.appendChild(e);
+  });
+}
+function doDrop(binId){
+  if(!drag||S.step!=="tri")return;
+  const idx=S.items.findIndex(i=>i.uid===drag);
+  if(idx<0||S.items[idx].caught){drag=null;return}
+  const it=S.items[idx],bin=BINS.find(b=>b.id===binId),ok=bin.accepts.includes(it.b);
+  it.caught=true;const e=document.getElementById("i-"+it.uid);if(e)e.remove();
+  if(ok){
+    S.cmb++;const bonus=S.cmb>=3?50:S.cmb>=2?25:0;const pts=100+bonus;
+    S.sc+=pts;S.sorted++;S.got.push(it);
+    showFB(S.cmb>=3?`🔥 ${t("cmb")} x${S.cmb} ! +${pts}`:`✅ ${t("bravo")} +${pts}`,"#10B981");
+    updCombo();hud();
+    if(S.sorted>=d().goal)setTimeout(()=>showTrans("t1","quiz"),500);
+  }else{S.cmb=0;S.lives--;updCombo();hud();showFB("❌ "+t("wb"),"#EF4444");if(S.lives<=0)setTimeout(endGame,400)}
+  drag=null;
+}
+function updCombo(){const e=el("combo");if(S.cmb>=2){e.textContent="🔥 "+t("cmb")+" x"+S.cmb;e.classList.remove("hidden")}else e.classList.add("hidden")}
+
+/* ═══ GAME LOOP ═══ */
+function loop(ts){
+  if(!lt)lt=ts;const dt=(ts-lt)/1000;lt=ts;
+  if(S.scr==="game"&&S.step==="tri"){
+    const spd=(d().spd+(S.rnd-1)*d().acc)*60,tw=el("conv").offsetWidth||760;
+    S.items.forEach(it=>{
+      if(it.caught)return;it.x+=spd*dt;
+      const e=document.getElementById("i-"+it.uid);if(e)e.style.left=it.x+"px";
+      if(it.x>tw+20){it.caught=true;if(e)e.remove();S.cmb=0;S.lives--;updCombo();hud();showFB("💀 "+t("miss"),"#EF4444");if(S.lives<=0)setTimeout(endGame,400)}
+    });
+  }
+  anim=requestAnimationFrame(loop);
+}
+
+/* ═══ TRANSITION ═══ */
+let nextAction=null;
+function showTrans(key,action){
+  S.step="trans";
+  hide("p-tri");hide("p-quiz");hide("p-repair");show("p-trans");
+  const data=t(key);
+  el("tr-emoji").textContent=data.e;
+  el("tr-title").textContent=data.t;
+  el("tr-sub").textContent=data.s;
+  el("tr-score").textContent="⭐ "+S.sc+" pts";
+  const btn=el("tr-btn");
+  btn.textContent=data.b;
+  btn.className="btn "+(action==="quiz"?"btn-purple":action==="repair"?"btn-orange":"btn-green");
+  nextAction=action;
+  hud();
+}
+function doTrans(){
+  hide("p-trans");
+  if(nextAction==="quiz")goQuiz();
+  else if(nextAction==="repair")goRepair();
+  else if(nextAction==="next")nextRound();
+  nextAction=null;
+}
+
+/* ═══ QUIZ ═══ */
+function goQuiz(){
+  S.step="quiz";
+  const pool=S.got.filter(i=>i.v);
+  const sel=shuf(pool).slice(0,d().qn);
+  if(!sel.length){showTrans("t2","repair");return}
+  S.qQ=sel.map(it=>{const c=it.v[lang]||it.v.fr;const f=it.f[lang]||it.f.fr;return{it:it,opts:shuf([c,...shuf(f).slice(0,2)]),ans:c}});
+  S.qI=0;hide("p-tri");hide("p-trans");show("p-quiz");drawQ();hud();
+}
+function drawQ(){
+  const q=S.qQ[S.qI];
+  el("q-emoji").textContent=q.it.e;el("q-name").textContent=q.it.n[lang]||q.it.n.fr;
+  hide("q-fb");hide("q-dyk");hide("q-transform");
+  const o=el("q-opts");o.innerHTML="";
+  q.opts.forEach(op=>{const b=document.createElement("button");b.className="opt";b.textContent=op;b.addEventListener("click",function(){ansQ(op,q)});o.appendChild(b)});
+}
+function ansQ(a,q){
+  const ok=a===q.ans;
+  el("q-opts").querySelectorAll("button").forEach(b=>{b.disabled=true;if(b.textContent===q.ans)b.classList.add("ok");if(b.textContent===a&&!ok)b.classList.add("ko")});
+  const fb=el("q-fb");
+  if(ok){S.sc+=200;fb.textContent="✅ "+t("ok")+" +200";fb.style.color="#10B981"}else{fb.textContent="❌ "+t("ko")+" "+q.ans;fb.style.color="#EF4444"}
+  show("q-fb");hud();
+  /* Show transformation visual */
+  const re=VIS_QUIZ[q.it.e];
+  if(re){
+    const tv=el("q-transform");
+    tv.innerHTML=`<div class="tf-before"><div class="tf-emoji">${q.it.e}</div><span class="tf-label" style="color:#81C784">${t("before")}</span></div><div class="tf-arrow">➜</div><div class="tf-after"><div class="tf-emoji">${re}</div><span class="tf-label" style="color:#4ADE80">${q.it.v[lang]||q.it.v.fr}</span></div>`;
+    show("q-transform");
+  }
+  const dy=q.it.d[lang]||q.it.d.fr;
+  if(dy){el("u-dykt").textContent=t("dyk");el("q-dyk-p").textContent=dy;show("q-dyk")}
+  setTimeout(()=>{if(S.qI+1<S.qQ.length){S.qI++;drawQ();hud()}else showTrans("t2","repair")},4500);
+}
+
+/* ═══ REPAIR ═══ */
+function goRepair(){
+  S.step="repair";
+  const sel=shuf(R).slice(0,d().rn);
+  if(!sel.length){showTrans("t3","next");return}
+  S.rQ=sel.map(it=>{const c=it.c[lang]||it.c.fr;const f=it.f[lang]||it.f.fr;return{it:it,opts:shuf([c,...f]),ans:c}});
+  S.rI=0;hide("p-quiz");hide("p-trans");show("p-repair");drawR();hud();
+}
+function drawR(){
+  const q=S.rQ[S.rI];
+  el("r-emoji").textContent=q.it.e;el("r-name").textContent=q.it.n[lang]||q.it.n.fr;
+  el("r-prob").textContent=q.it.p[lang]||q.it.p.fr;
+  el("r-state-before").textContent=t("broken");
+  hide("r-fb");hide("r-tip");hide("r-after");
+  const o=el("r-opts");o.innerHTML="";
+  q.opts.forEach(op=>{const b=document.createElement("button");b.className="opt";b.textContent=op;b.addEventListener("click",function(){ansR(op,q)});o.appendChild(b)});
+}
+function ansR(a,q){
+  const ok=a===q.ans;
+  el("r-opts").querySelectorAll("button").forEach(b=>{b.disabled=true;if(b.textContent===q.ans)b.classList.add("ok");if(b.textContent===a&&!ok)b.classList.add("ko")});
+  const fb=el("r-fb");
+  if(ok){S.sc+=300;fb.textContent="🔧 "+t("rok")+" +300";fb.style.color="#F59E0B"}else{fb.textContent="❌ "+t("rko")+" "+q.ans;fb.style.color="#EF4444"}
+  show("r-fb");hud();
+  /* Show before → after repair visual */
+  const av=el("r-after");
+  av.innerHTML=`<div class="rv-item rv-broken"><div class="rv-emoji">${q.it.e}</div><span class="tf-label" style="color:#FCA5A5">${t("broken")}</span></div><div class="tf-arrow" style="color:#F59E0B">➜</div><div class="rv-item rv-fixed"><div class="rv-emoji">${q.it.e}</div><span class="rv-sparkle">✨</span><span class="tf-label" style="color:#4ADE80">${t("fixed")}</span></div>`;
+  show("r-after");
+  const tp=q.it.tip[lang]||q.it.tip.fr;
+  if(tp){el("u-ript").textContent=t("rtip");el("r-tip-p").textContent=tp;show("r-tip")}
+  setTimeout(()=>{if(S.rI+1<S.rQ.length){S.rI++;drawR();hud()}else showTrans("t3","next")},5000);
+}
+
+/* ═══ FLOW ═══ */
+function nextRound(){S.rnd++;S.step="tri";S.qQ=[];S.qI=0;S.rQ=[];S.rI=0;hide("p-quiz");hide("p-repair");hide("p-trans");show("p-tri");spawn();hud()}
+function startGame(){
+  if(!age)return;
+  pName=el("inp-name").value.trim()||"Joueur";
+  reset();S.scr="game";
+  hide("s-start");hide("s-over");show("s-game");show("p-tri");hide("p-quiz");hide("p-repair");hide("p-trans");
+  mkBins();spawn();hud();updCombo();hide("fb");
+  lt=null;if(anim)cancelAnimationFrame(anim);anim=requestAnimationFrame(loop);
+}
+function endGame(){
+  S.scr="over";if(anim)cancelAnimationFrame(anim);hide("s-game");
+  el("o-score").textContent=S.sc;
+  el("o-round").textContent=t("rr")+" : "+S.rnd;
+  saveLB(pName,S.sc,age);
+  if(S.sc>hiBest){hiBest=S.sc;show("o-rec");el("o-rec").textContent=t("rec")}else hide("o-rec");
+  show("s-over");drawLB("lb-over");
+}
+function goHome(){hide("s-over");hide("s-game");show("s-start");drawLB("lb-start")}
+
+/* ═══ EVENT LISTENERS (all in one place) ═══ */
+document.getElementById("lb-fr").addEventListener("click",function(){lang="fr";document.querySelectorAll(".lang-btn").forEach(b=>b.classList.remove("active"));this.classList.add("active");refreshUI()});
+document.getElementById("lb-en").addEventListener("click",function(){lang="en";document.querySelectorAll(".lang-btn").forEach(b=>b.classList.remove("active"));this.classList.add("active");refreshUI()});
+document.getElementById("lb-es").addEventListener("click",function(){lang="es";document.querySelectorAll(".lang-btn").forEach(b=>b.classList.remove("active"));this.classList.add("active");refreshUI()});
+
+/* Mode toggle */
+document.querySelectorAll(".mode-btn").forEach(function(b){
+  b.addEventListener("click",function(){
+    gameMode=this.dataset.m;
+    document.querySelectorAll(".mode-btn").forEach(function(x){x.classList.remove("sel")});
+    this.classList.add("sel");
+    el("inp-name").placeholder=gameMode==="team"?t("phTeam"):t("ph");
+    chkReady();
+  });
+});
+
+document.querySelectorAll(".age-btn").forEach(function(b){
+  b.addEventListener("click",function(){
+    age=this.dataset.a;
+    document.querySelectorAll(".age-btn").forEach(function(x){x.classList.remove("sel")});
+    this.classList.add("sel");
+    chkReady();
+  });
+});
+el("inp-name").addEventListener("input",chkReady);
+function chkReady(){el("btn-go").disabled=!(age&&el("inp-name").value.trim().length>=1)}
+
+el("btn-go").addEventListener("click",startGame);
+el("btn-replay").addEventListener("click",startGame);
+el("btn-home").addEventListener("click",goHome);
+el("tr-btn").addEventListener("click",doTrans);
+
+/* ═══ INIT ═══ */
+refreshUI();
+</script>
+</body>
+</html>
