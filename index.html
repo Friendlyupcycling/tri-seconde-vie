@@ -192,6 +192,15 @@ body{background:#080d09;font-family:'Nunito',sans-serif;color:#E8F5E9;display:fl
       <button class="age-btn" data-a="adult">🧑‍🦱 16+</button>
     </div>
   </div>
+  <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+    <p class="age-label" id="u-path"></p>
+    <div class="age-row">
+      <button class="age-btn sel" data-p="full">🎮 <span id="u-pFull"></span></button>
+      <button class="age-btn" data-p="tri">🚛 <span id="u-pTri"></span></button>
+      <button class="age-btn" data-p="quiz">♻️ <span id="u-pQuiz"></span></button>
+      <button class="age-btn" data-p="repair">🔧 <span id="u-pRepair"></span></button>
+    </div>
+  </div>
   <button class="btn btn-green" id="btn-go" disabled>▶ <span id="u-start"></span></button>
   <a href="https://ko-fi.com/friendlyupcycling" target="_blank" class="kofi-btn">☕ <span id="u-donate1"></span></a>
   <div id="lb-start" class="lb hidden"></div>
@@ -290,6 +299,7 @@ fr:{
   r3:"Réparez un objet cassé à l'Atelier Réemploi",
   r4:"💡 Combos = bonus · La vitesse augmente à chaque manche !",
   age:"Votre tranche d'âge :",ph:"Votre prénom…",
+    path:"Choisissez votre parcours :",pFull:"Complet",pTri:"Le Tri",pQuiz:"Le Quiz",pRepair:"L'Atelier",
     mode:"Mode de jeu :",solo:"Solo",team:"Équipe",phTeam:"Nom de l'équipe…",
     before:"Avant",after:"Après",broken:"Cassé",fixed:"Réparé ✨",
   start:"COMMENCER",replay:"REJOUER",home:"ACCUEIL",quit:"Quitter la partie",go:"Partie terminée !",donate:"Soutenir l'association",
@@ -312,6 +322,7 @@ en:{
   r3:"Repair a broken object at the Reuse Workshop",
   r4:"💡 Combos = bonus · Speed increases every round!",
   age:"Your age group:",ph:"Your first name…",
+    path:"Choose your path:",pFull:"Full game",pTri:"Sorting",pQuiz:"Quiz",pRepair:"Workshop",
     mode:"Game mode:",solo:"Solo",team:"Team",phTeam:"Team name…",
     before:"Before",after:"After",broken:"Broken",fixed:"Fixed ✨",
   start:"START",replay:"PLAY AGAIN",home:"HOME",quit:"Quit game",go:"Game over!",donate:"Support the association",
@@ -334,6 +345,7 @@ es:{
   r3:"Repara un objeto roto en el Taller de Reutilización",
   r4:"💡 Combos = bonus · ¡La velocidad aumenta en cada ronda!",
   age:"Tu grupo de edad:",ph:"Tu nombre…",
+    path:"Elige tu recorrido:",pFull:"Completo",pTri:"Clasificar",pQuiz:"Quiz",pRepair:"Taller",
     mode:"Modo de juego:",solo:"Solo",team:"Equipo",phTeam:"Nombre del equipo…",
     before:"Antes",after:"Después",broken:"Roto",fixed:"Reparado ✨",
   start:"EMPEZAR",replay:"JUGAR DE NUEVO",home:"INICIO",quit:"Salir del juego",go:"¡Partida terminada!",donate:"Apoyar la asociación",
@@ -425,7 +437,7 @@ const VIS_REPAIR={
 };
 
 const D={child:{spd:.45,goal:12,qn:6,rn:4,acc:.03,hp:6},teen:{spd:.7,goal:16,qn:8,rn:6,acc:.06,hp:5},adult:{spd:.9,goal:16,qn:10,rn:8,acc:.1,hp:4}};
-let age=null,pName="",hiBest=0;
+let age=null,pName="",hiBest=0,gamePath="full";
 function d(){return D[age]||D.teen}
 
 /* ═══ STATE ═══ */
@@ -457,6 +469,7 @@ function refreshUI(){
   s("u-rprompt",t("rp"));s("u-rq",t("rq"));s("u-ript",t("rtip"));
   s("u-donate1",t("donate"));s("u-donate2",t("donate"));
   s("u-quit",t("quit"));
+  s("u-path",t("path"));s("u-pFull",t("pFull"));s("u-pTri",t("pTri"));s("u-pQuiz",t("pQuiz"));s("u-pRepair",t("pRepair"));
   s("u-mode",t("mode"));s("u-solo",t("solo"));s("u-team",t("team"));
   el("inp-name").placeholder=gameMode==="team"?t("phTeam"):t("ph");
   drawLB("lb-start");
@@ -519,7 +532,10 @@ function doDrop(binId){
     S.sc+=pts;S.sorted++;S.got.push(it);
     showFB(S.cmb>=3?`🔥 ${t("cmb")} x${S.cmb} ! +${pts}`:`✅ ${t("bravo")} +${pts}`,"#10B981");
     updCombo();hud();
-    if(S.sorted>=d().goal)setTimeout(()=>showTrans("t1","quiz"),500);
+    if(S.sorted>=d().goal){
+      if(gamePath==="tri")setTimeout(()=>showTrans("t3","next"),500);
+      else setTimeout(()=>showTrans("t1","quiz"),500);
+    }
   }else{S.cmb=0;S.lives--;updCombo();hud();showFB("❌ "+t("wb"),"#EF4444");if(S.lives<=0)setTimeout(endGame,400)}
   drag=null;
 }
@@ -564,11 +580,18 @@ function doTrans(){
 }
 
 /* ═══ QUIZ ═══ */
+function goQuizDirect(){
+  S.step="quiz";
+  const pool=W.filter(i=>i.v);
+  const sel=shuf(pool).slice(0,d().qn);
+  S.qQ=sel.map(it=>{const c=it.v[lang]||it.v.fr;const f=it.f[lang]||it.f.fr;return{it:it,opts:shuf([c,...shuf(f).slice(0,2)]),ans:c}});
+  S.qI=0;hide("p-tri");hide("p-trans");show("p-quiz");drawQ();hud();
+}
 function goQuiz(){
   S.step="quiz";
-  const pool=S.got.filter(i=>i.v);
+  const pool=gamePath==="full"?S.got.filter(i=>i.v):W.filter(i=>i.v);
   const sel=shuf(pool).slice(0,d().qn);
-  if(!sel.length){showTrans("t2","repair");return}
+  if(!sel.length){goNextStep("quiz");return}
   S.qQ=sel.map(it=>{const c=it.v[lang]||it.v.fr;const f=it.f[lang]||it.f.fr;return{it:it,opts:shuf([c,...shuf(f).slice(0,2)]),ans:c}});
   S.qI=0;hide("p-tri");hide("p-trans");show("p-quiz");drawQ();hud();
 }
@@ -594,10 +617,19 @@ function ansQ(a,q){
   }
   const dy=q.it.d[lang]||q.it.d.fr;
   if(dy){el("u-dykt").textContent=t("dyk");el("q-dyk-p").textContent=dy;show("q-dyk")}
-  setTimeout(()=>{if(S.qI+1<S.qQ.length){S.qI++;drawQ();hud()}else showTrans("t2","repair")},4500);
+  setTimeout(()=>{if(S.qI+1<S.qQ.length){S.qI++;drawQ();hud()}else{
+    if(gamePath==="quiz")showTrans("t3","next");
+    else showTrans("t2","repair");
+  }},4500);
 }
 
 /* ═══ REPAIR ═══ */
+function goRepairDirect(){
+  S.step="repair";
+  const sel=shuf(R).slice(0,d().rn);
+  S.rQ=sel.map(it=>{const c=it.c[lang]||it.c.fr;const f=it.f[lang]||it.f.fr;return{it:it,opts:shuf([c,...f]),ans:c}});
+  S.rI=0;hide("p-tri");hide("p-quiz");hide("p-trans");show("p-repair");drawR();hud();
+}
 function goRepair(){
   S.step="repair";
   const sel=shuf(R).slice(0,d().rn);
@@ -630,14 +662,21 @@ function ansR(a,q){
 }
 
 /* ═══ FLOW ═══ */
-function nextRound(){S.rnd++;S.step="tri";S.qQ=[];S.qI=0;S.rQ=[];S.rI=0;hide("p-quiz");hide("p-repair");hide("p-trans");show("p-tri");spawn();hud()}
+function nextRound(){S.rnd++;S.step="tri";S.qQ=[];S.qI=0;S.rQ=[];S.rI=0;hide("p-quiz");hide("p-repair");hide("p-trans");
+  if(gamePath==="quiz"){goQuizDirect()}
+  else if(gamePath==="repair"){goRepairDirect()}
+  else{show("p-tri");spawn();hud()}
+}
 function startGame(){
   if(!age)return;
   pName=el("inp-name").value.trim()||"Joueur";
   reset();S.scr="game";
-  hide("s-start");hide("s-over");show("s-game");show("p-tri");hide("p-quiz");hide("p-repair");hide("p-trans");
-  mkBins();spawn();hud();updCombo();hide("fb");
+  hide("s-start");hide("s-over");show("s-game");hide("p-tri");hide("p-quiz");hide("p-repair");hide("p-trans");
+  mkBins();hud();updCombo();hide("fb");
   lt=null;if(anim)cancelAnimationFrame(anim);anim=requestAnimationFrame(loop);
+  if(gamePath==="tri"||gamePath==="full"){show("p-tri");spawn()}
+  else if(gamePath==="quiz"){goQuizDirect()}
+  else if(gamePath==="repair"){goRepairDirect()}
 }
 function endGame(){
   S.scr="over";if(anim)cancelAnimationFrame(anim);hide("s-game");
@@ -665,12 +704,19 @@ document.querySelectorAll(".mode-btn").forEach(function(b){
   });
 });
 
-document.querySelectorAll(".age-btn").forEach(function(b){
+document.querySelectorAll(".age-btn[data-a]").forEach(function(b){
   b.addEventListener("click",function(){
     age=this.dataset.a;
-    document.querySelectorAll(".age-btn").forEach(function(x){x.classList.remove("sel")});
+    document.querySelectorAll(".age-btn[data-a]").forEach(function(x){x.classList.remove("sel")});
     this.classList.add("sel");
     chkReady();
+  });
+});
+document.querySelectorAll(".age-btn[data-p]").forEach(function(b){
+  b.addEventListener("click",function(){
+    gamePath=this.dataset.p;
+    document.querySelectorAll(".age-btn[data-p]").forEach(function(x){x.classList.remove("sel")});
+    this.classList.add("sel");
   });
 });
 el("inp-name").addEventListener("input",chkReady);
