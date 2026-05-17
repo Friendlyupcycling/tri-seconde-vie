@@ -47,6 +47,8 @@ body{background:#080d09;font-family:'Nunito',sans-serif;color:#E8F5E9;display:fl
 .btn-sm{padding:8px 24px;font-size:13px;letter-spacing:1px}
 .btn-outline{background:transparent;border:2px solid #4ADE80;color:#4ADE80;padding:8px 24px;border-radius:30px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s}
 .btn-outline:hover{background:rgba(74,222,128,.1)}
+.kofi-btn{display:inline-block;background:linear-gradient(135deg,#FF5E5B,#FFBD59);color:#fff;padding:8px 22px;border-radius:30px;font-size:13px;font-weight:800;text-decoration:none;font-family:inherit;letter-spacing:1px;transition:transform .15s;box-shadow:0 3px 16px rgba(255,94,91,.3)}
+.kofi-btn:hover{transform:scale(1.05)}
 
 .final-num{font-size:58px;font-weight:900;background:linear-gradient(135deg,#F5C518,#F59E0B);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .final-lbl{font-size:12px;color:#81C784;text-transform:uppercase;letter-spacing:4px}
@@ -187,6 +189,7 @@ body{background:#080d09;font-family:'Nunito',sans-serif;color:#E8F5E9;display:fl
     </div>
   </div>
   <button class="btn btn-green" id="btn-go" disabled>▶ <span id="u-start"></span></button>
+  <a href="https://ko-fi.com/friendlyupcycling" target="_blank" class="kofi-btn">☕ <span id="u-donate1"></span></a>
   <div id="lb-start" class="lb hidden"></div>
 </div>
 
@@ -261,6 +264,7 @@ body{background:#080d09;font-family:'Nunito',sans-serif;color:#E8F5E9;display:fl
   <p id="o-round" class="hi"></p>
   <p id="o-rec" class="new-rec hidden"></p>
   <p class="brand-name">🏠 L'Oasis du Réemploi — Friendly Upcycling</p>
+  <a href="https://ko-fi.com/friendlyupcycling" target="_blank" class="kofi-btn">☕ <span id="u-donate2"></span></a>
   <div id="lb-over" class="lb"></div>
   <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
     <button class="btn btn-green btn-sm" id="btn-replay">🔄 <span id="u-replay"></span></button>
@@ -283,7 +287,7 @@ fr:{
   age:"Votre tranche d'âge :",ph:"Votre prénom…",
     mode:"Mode de jeu :",solo:"Solo",team:"Équipe",phTeam:"Nom de l'équipe…",
     before:"Avant",after:"Après",broken:"Cassé",fixed:"Réparé ✨",
-  start:"COMMENCER",replay:"REJOUER",home:"ACCUEIL",go:"Partie terminée !",
+  start:"COMMENCER",replay:"REJOUER",home:"ACCUEIL",go:"Partie terminée !",donate:"Soutenir l'association",
   round:"Manche",s1:"🚛 Le Tri",s2:"♻️ Le Quiz",s3:"🔧 L'Atelier",
   qp:"Ce déchet a été bien trié !",qq:"Quelle est sa seconde vie ?",dyk:"Le saviez-vous ?",
   rp:"Bienvenue à L'Oasis du Réemploi !",rq:"Quelle est la bonne technique ?",rtip:"Astuce réemploi",
@@ -305,7 +309,7 @@ en:{
   age:"Your age group:",ph:"Your first name…",
     mode:"Game mode:",solo:"Solo",team:"Team",phTeam:"Team name…",
     before:"Before",after:"After",broken:"Broken",fixed:"Fixed ✨",
-  start:"START",replay:"PLAY AGAIN",home:"HOME",go:"Game over!",
+  start:"START",replay:"PLAY AGAIN",home:"HOME",go:"Game over!",donate:"Support the association",
   round:"Round",s1:"🚛 Sorting",s2:"♻️ Quiz",s3:"🔧 Workshop",
   qp:"This waste was sorted correctly!",qq:"What is its second life?",dyk:"Did you know?",
   rp:"Welcome to L'Oasis du Réemploi!",rq:"What's the right technique?",rtip:"Reuse tip",
@@ -327,7 +331,7 @@ es:{
   age:"Tu grupo de edad:",ph:"Tu nombre…",
     mode:"Modo de juego:",solo:"Solo",team:"Equipo",phTeam:"Nombre del equipo…",
     before:"Antes",after:"Después",broken:"Roto",fixed:"Reparado ✨",
-  start:"EMPEZAR",replay:"JUGAR DE NUEVO",home:"INICIO",go:"¡Partida terminada!",
+  start:"EMPEZAR",replay:"JUGAR DE NUEVO",home:"INICIO",go:"¡Partida terminada!",donate:"Apoyar la asociación",
   round:"Ronda",s1:"🚛 Clasificar",s2:"♻️ Quiz",s3:"🔧 Taller",
   qp:"¡Este residuo fue bien clasificado!",qq:"¿Cuál es su segunda vida?",dyk:"¿Sabías que...?",
   rp:"¡Bienvenido a L'Oasis du Réemploi!",rq:"¿Cuál es la técnica correcta?",rtip:"Consejo",
@@ -444,6 +448,7 @@ function refreshUI(){
   s("u-age",t("age"));s("u-start",t("start"));s("u-replay",t("replay"));s("u-home",t("home"));
   s("u-go",t("go"));s("u-qprompt",t("qp"));s("u-qq",t("qq"));s("u-dykt",t("dyk"));
   s("u-rprompt",t("rp"));s("u-rq",t("rq"));s("u-ript",t("rtip"));
+  s("u-donate1",t("donate"));s("u-donate2",t("donate"));
   s("u-mode",t("mode"));s("u-solo",t("solo"));s("u-team",t("team"));
   el("inp-name").placeholder=gameMode==="team"?t("phTeam"):t("ph");
   drawLB("lb-start");
