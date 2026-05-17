@@ -49,6 +49,10 @@ body{background:#080d09;font-family:'Nunito',sans-serif;color:#E8F5E9;display:fl
 .btn-outline:hover{background:rgba(74,222,128,.1)}
 .kofi-btn{display:inline-block;background:linear-gradient(135deg,#FF5E5B,#FFBD59);color:#fff;padding:8px 22px;border-radius:30px;font-size:13px;font-weight:800;text-decoration:none;font-family:inherit;letter-spacing:1px;transition:transform .15s;box-shadow:0 3px 16px rgba(255,94,91,.3)}
 .kofi-btn:hover{transform:scale(1.05)}
+.lb-actions{display:flex;gap:8px;justify-content:center;margin-top:8px}
+.lb-act{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#9CA3AF;padding:5px 14px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s}
+.lb-act:hover{background:rgba(255,255,255,.12);color:#E8F5E9}
+.lb-act.danger:hover{background:rgba(239,68,68,.15);color:#FCA5A5;border-color:rgba(239,68,68,.3)}
 
 .final-num{font-size:58px;font-weight:900;background:linear-gradient(135deg,#F5C518,#F59E0B);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .final-lbl{font-size:12px;color:#81C784;text-transform:uppercase;letter-spacing:4px}
@@ -294,7 +298,7 @@ fr:{
   ok:"Exact !",ko:"C'était :",bravo:"Bravo !",cmb:"Combo",
   miss:"Raté !",wb:"Mauvaise poubelle !",rok:"Bien réparé !",rko:"Pas tout à fait…",
   rec:"🏆 Nouveau record !",bs:"Meilleur score",rr:"Manche atteinte",
-  lbt:"🏆 Classement Séminaire",lbr:"#",lbn:"Joueur",lbs:"Score",
+  lbt:"🏆 Classement",lbr:"#",lbn:"Joueur",lbs:"Score",lbArchive:"📥 Archiver",lbReset:"🗑️ Effacer",lbConfirm:"Voulez-vous vraiment effacer le classement ?",
   bins:{jaune:"Recyclable",verre:"Verre",compost:"Compost",gris:"Ordures"},
   t1:{e:"✅",t:"Tri terminé !",s:"Voyons ce que deviennent vos déchets bien triés…",b:"Passer au Quiz ♻️"},
   t2:{e:"🧠",t:"Quiz terminé !",s:"Direction l'atelier pour donner une seconde chance à un objet cassé…",b:"Aller à l'Atelier 🔧"},
@@ -316,7 +320,7 @@ en:{
   ok:"Correct!",ko:"It was:",bravo:"Well done!",cmb:"Combo",
   miss:"Missed!",wb:"Wrong bin!",rok:"Well repaired!",rko:"Not quite…",
   rec:"🏆 New record!",bs:"Best score",rr:"Round reached",
-  lbt:"🏆 Seminar Leaderboard",lbr:"#",lbn:"Player",lbs:"Score",
+  lbt:"🏆 Leaderboard",lbr:"#",lbn:"Player",lbs:"Score",lbArchive:"📥 Archive",lbReset:"🗑️ Clear",lbConfirm:"Are you sure you want to clear the leaderboard?",
   bins:{jaune:"Recyclable",verre:"Glass",compost:"Compost",gris:"General"},
   t1:{e:"✅",t:"Sorting complete!",s:"Let's find out what your sorted waste becomes…",b:"Start the Quiz ♻️"},
   t2:{e:"🧠",t:"Quiz complete!",s:"Head to the workshop to give a broken object a second chance…",b:"Go to Workshop 🔧"},
@@ -338,7 +342,7 @@ es:{
   ok:"¡Correcto!",ko:"Era:",bravo:"¡Bien hecho!",cmb:"Combo",
   miss:"¡Perdido!",wb:"¡Contenedor equivocado!",rok:"¡Bien reparado!",rko:"No exactamente…",
   rec:"🏆 ¡Nuevo récord!",bs:"Mejor puntaje",rr:"Ronda alcanzada",
-  lbt:"🏆 Clasificación Seminario",lbr:"#",lbn:"Jugador",lbs:"Puntos",
+  lbt:"🏆 Clasificación",lbr:"#",lbn:"Jugador",lbs:"Puntos",lbArchive:"📥 Archivar",lbReset:"🗑️ Borrar",lbConfirm:"¿Seguro que quieres borrar la clasificación?",
   bins:{jaune:"Reciclable",verre:"Vidrio",compost:"Compost",gris:"General"},
   t1:{e:"✅",t:"¡Clasificación completa!",s:"Veamos en qué se convierten tus residuos…",b:"Ir al Quiz ♻️"},
   t2:{e:"🧠",t:"¡Quiz completo!",s:"Vamos al taller para darle una segunda oportunidad a un objeto roto…",b:"Ir al Taller 🔧"},
@@ -437,7 +441,9 @@ function esc(s){const d=document.createElement("div");d.textContent=s;return d.i
 /* ═══ LEADERBOARD ═══ */
 function getLB(){try{return JSON.parse(localStorage.getItem("oasis_lb")||"[]")}catch(e){return[]}}
 function saveLB(n,s,a){const lb=getLB();lb.push({n:n,s:s,a:a,m:gameMode,d:Date.now()});lb.sort((a,b)=>b.s-a.s);if(lb.length>50)lb.length=50;localStorage.setItem("oasis_lb",JSON.stringify(lb))}
-function drawLB(id){const lb=getLB(),c=el(id);if(!c)return;if(!lb.length){c.classList.add("hidden");return}c.classList.remove("hidden");const top=lb.slice(0,10);let h=`<p class="lb-t">${t("lbt")}</p><table><tr><th>${t("lbr")}</th><th>${t("lbn")}</th><th style="text-align:right">${t("lbs")}</th></tr>`;top.forEach((e,i)=>{const me=(e.n===pName)?"me":"";const icon=e.m==="team"?"👥 ":"";h+=`<tr class="${me}"><td class="rk">${i+1}</td><td class="nm">${icon}${esc(e.n)}</td><td class="pt">${e.s}</td></tr>`});h+=`</table>`;c.innerHTML=h}
+function drawLB(id){const lb=getLB(),c=el(id);if(!c)return;if(!lb.length){c.classList.add("hidden");return}c.classList.remove("hidden");const top=lb.slice(0,10);let h=`<p class="lb-t">${t("lbt")}</p><table><tr><th>${t("lbr")}</th><th>${t("lbn")}</th><th style="text-align:right">${t("lbs")}</th></tr>`;top.forEach((e,i)=>{const me=(e.n===pName)?"me":"";const icon=e.m==="team"?"👥 ":"";h+=`<tr class="${me}"><td class="rk">${i+1}</td><td class="nm">${icon}${esc(e.n)}</td><td class="pt">${e.s}</td></tr>`});h+=`</table><div class="lb-actions"><button class="lb-act" onclick="archiveLB()">${t("lbArchive")}</button><button class="lb-act danger" onclick="resetLB('${id}')">${t("lbReset")}</button></div>`;c.innerHTML=h}
+function archiveLB(){const lb=getLB();if(!lb.length)return;let csv="Rang,Joueur,Score,Mode,Date\n";lb.forEach((e,i)=>{const d=new Date(e.d);csv+=`${i+1},${e.n},${e.s},${e.m||"solo"},${d.toLocaleDateString()}\n`});const blob=new Blob([csv],{type:"text/csv"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="classement-tri-seconde-vie.csv";a.click()}
+function resetLB(id){if(!confirm(t("lbConfirm")))return;localStorage.removeItem("oasis_lb");drawLB("lb-start");drawLB("lb-over")}
 
 /* ═══ UI REFRESH ═══ */
 let gameMode="solo";
