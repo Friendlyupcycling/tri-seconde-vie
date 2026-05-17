@@ -256,6 +256,7 @@ body{background:#080d09;font-family:'Nunito',sans-serif;color:#E8F5E9;display:fl
       <div class="trans-sub" id="tr-sub"></div>
       <div class="trans-score" id="tr-score"></div>
       <button class="btn" id="tr-btn"></button>
+      <button class="btn-outline" id="tr-quit" style="margin-top:4px">🏠 <span id="u-quit"></span></button>
     </div>
   </div>
 </div>
@@ -291,7 +292,7 @@ fr:{
   age:"Votre tranche d'âge :",ph:"Votre prénom…",
     mode:"Mode de jeu :",solo:"Solo",team:"Équipe",phTeam:"Nom de l'équipe…",
     before:"Avant",after:"Après",broken:"Cassé",fixed:"Réparé ✨",
-  start:"COMMENCER",replay:"REJOUER",home:"ACCUEIL",go:"Partie terminée !",donate:"Soutenir l'association",
+  start:"COMMENCER",replay:"REJOUER",home:"ACCUEIL",quit:"Quitter la partie",go:"Partie terminée !",donate:"Soutenir l'association",
   round:"Manche",s1:"🚛 Le Tri",s2:"♻️ Le Quiz",s3:"🔧 L'Atelier",
   qp:"Ce déchet a été bien trié !",qq:"Quelle est sa seconde vie ?",dyk:"Le saviez-vous ?",
   rp:"Bienvenue à L'Oasis du Réemploi !",rq:"Quelle est la bonne technique ?",rtip:"Astuce réemploi",
@@ -313,7 +314,7 @@ en:{
   age:"Your age group:",ph:"Your first name…",
     mode:"Game mode:",solo:"Solo",team:"Team",phTeam:"Team name…",
     before:"Before",after:"After",broken:"Broken",fixed:"Fixed ✨",
-  start:"START",replay:"PLAY AGAIN",home:"HOME",go:"Game over!",donate:"Support the association",
+  start:"START",replay:"PLAY AGAIN",home:"HOME",quit:"Quit game",go:"Game over!",donate:"Support the association",
   round:"Round",s1:"🚛 Sorting",s2:"♻️ Quiz",s3:"🔧 Workshop",
   qp:"This waste was sorted correctly!",qq:"What is its second life?",dyk:"Did you know?",
   rp:"Welcome to L'Oasis du Réemploi!",rq:"What's the right technique?",rtip:"Reuse tip",
@@ -335,7 +336,7 @@ es:{
   age:"Tu grupo de edad:",ph:"Tu nombre…",
     mode:"Modo de juego:",solo:"Solo",team:"Equipo",phTeam:"Nombre del equipo…",
     before:"Antes",after:"Después",broken:"Roto",fixed:"Reparado ✨",
-  start:"EMPEZAR",replay:"JUGAR DE NUEVO",home:"INICIO",go:"¡Partida terminada!",donate:"Apoyar la asociación",
+  start:"EMPEZAR",replay:"JUGAR DE NUEVO",home:"INICIO",quit:"Salir del juego",go:"¡Partida terminada!",donate:"Apoyar la asociación",
   round:"Ronda",s1:"🚛 Clasificar",s2:"♻️ Quiz",s3:"🔧 Taller",
   qp:"¡Este residuo fue bien clasificado!",qq:"¿Cuál es su segunda vida?",dyk:"¿Sabías que...?",
   rp:"¡Bienvenido a L'Oasis du Réemploi!",rq:"¿Cuál es la técnica correcta?",rtip:"Consejo",
@@ -455,6 +456,7 @@ function refreshUI(){
   s("u-go",t("go"));s("u-qprompt",t("qp"));s("u-qq",t("qq"));s("u-dykt",t("dyk"));
   s("u-rprompt",t("rp"));s("u-rq",t("rq"));s("u-ript",t("rtip"));
   s("u-donate1",t("donate"));s("u-donate2",t("donate"));
+  s("u-quit",t("quit"));
   s("u-mode",t("mode"));s("u-solo",t("solo"));s("u-team",t("team"));
   el("inp-name").placeholder=gameMode==="team"?t("phTeam"):t("ph");
   drawLB("lb-start");
@@ -678,6 +680,7 @@ el("btn-go").addEventListener("click",startGame);
 el("btn-replay").addEventListener("click",startGame);
 el("btn-home").addEventListener("click",goHome);
 el("tr-btn").addEventListener("click",doTrans);
+el("tr-quit").addEventListener("click",function(){hide("p-trans");endGame()});
 
 /* ═══ INIT ═══ */
 refreshUI();
