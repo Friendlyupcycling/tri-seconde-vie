@@ -71,12 +71,13 @@ body{background:#080d09;font-family:'Nunito',sans-serif;color:#E8F5E9;display:fl
 
 /* CONVEYOR */
 .conv-area{display:flex;flex-direction:column;justify-content:center;padding:20px 14px 14px;gap:20px}
-.conv-track{position:relative;height:100px;background:linear-gradient(180deg,#2D3A30,#1F2923);border-radius:14px;overflow:hidden;border:2px solid rgba(255,255,255,.08)}
+.conv-track{position:relative;height:100px;background:linear-gradient(180deg,#2D3A30,#1F2923);border-radius:14px;overflow:visible;border:2px solid rgba(255,255,255,.08);touch-action:none}
 .conv-stripes{position:absolute;inset:0;background-image:repeating-linear-gradient(90deg,transparent,transparent 40px,rgba(255,255,255,.04) 40px,rgba(255,255,255,.04) 42px);animation:scrollS .8s linear infinite}
 @keyframes scrollS{from{background-position:0 0}to{background-position:42px 0}}
 .wi{position:absolute;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;gap:2px;cursor:grab;user-select:none;padding:6px 10px;background:rgba(255,255,255,.1);border-radius:11px;border:1px solid rgba(255,255,255,.18);z-index:10;backdrop-filter:blur(4px);transition:box-shadow .15s}
 .wi:hover{box-shadow:0 0 16px rgba(74,222,128,.3)}
 .wi.sel{box-shadow:0 0 20px rgba(74,222,128,.6);border-color:#4ADE80}
+.wi-ghost{position:fixed;z-index:500;pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 12px;background:rgba(74,222,128,.25);border-radius:14px;border:2px solid #4ADE80;backdrop-filter:blur(6px);transform:translate(-50%,-50%);box-shadow:0 0 24px rgba(74,222,128,.4)}
 .wi-e{font-size:28px;line-height:1}
 .wi-n{font-size:9px;color:#C8E6C9;font-weight:700;text-align:center;max-width:78px;line-height:1.2}
 .bins{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
@@ -540,7 +541,7 @@ function showFB(txt,col){clearTimeout(fbT);const e=el("fb");e.textContent=txt;e.
 function mkBins(){
   const r=el("bins");r.innerHTML="";
   BINS.forEach(bin=>{
-    const d=document.createElement("div");d.className="bin";
+    const d=document.createElement("div");d.className="bin";d.dataset.bid=bin.id;
     d.style.borderColor=bin.color;d.style.background=bin.color+"18";
     d.innerHTML=`<span class="bin-e">${bin.emoji}</span><span class="bin-l" style="color:${bin.color}">${t("bins")[bin.id]}</span>`;
     d.addEventListener("dragover",ev=>{ev.preventDefault();d.classList.add("over")});
@@ -572,6 +573,32 @@ function spawn(){
     e.addEventListener("dragstart",ev=>{drag=it.uid;e.classList.add("sel");ev.dataTransfer.setData("text/plain",it.uid)});
     e.addEventListener("dragend",()=>e.classList.remove("sel"));
     e.addEventListener("click",()=>{cv.querySelectorAll(".wi").forEach(w=>w.classList.remove("sel"));drag=it.uid;e.classList.add("sel")});
+    /* Touch drag */
+    e.addEventListener("touchstart",function(ev){
+      ev.preventDefault();drag=it.uid;e.classList.add("sel");
+      const t=ev.touches[0];
+      const ghost=document.createElement("div");ghost.className="wi-ghost";ghost.id="touch-ghost";
+      ghost.innerHTML=`<span class="wi-e">${it.e}</span>`;
+      ghost.style.left=t.clientX+"px";ghost.style.top=t.clientY+"px";
+      document.body.appendChild(ghost);
+    },{passive:false});
+    e.addEventListener("touchmove",function(ev){
+      ev.preventDefault();
+      const t=ev.touches[0];const ghost=document.getElementById("touch-ghost");
+      if(ghost){ghost.style.left=t.clientX+"px";ghost.style.top=t.clientY+"px";}
+      /* Highlight bin under finger */
+      const elUnder=document.elementFromPoint(t.clientX,t.clientY);
+      document.querySelectorAll(".bin").forEach(b=>b.classList.remove("over"));
+      if(elUnder){const bin=elUnder.closest(".bin");if(bin)bin.classList.add("over");}
+    },{passive:false});
+    e.addEventListener("touchend",function(ev){
+      const ghost=document.getElementById("touch-ghost");
+      if(ghost)ghost.remove();
+      document.querySelectorAll(".bin").forEach(b=>b.classList.remove("over"));
+      const t=ev.changedTouches[0];
+      const elUnder=document.elementFromPoint(t.clientX,t.clientY);
+      if(elUnder){const bin=elUnder.closest(".bin");if(bin){const binId=bin.dataset.bid;if(binId)doDrop(binId);}}
+    });
     cv.appendChild(e);
   });
 }
